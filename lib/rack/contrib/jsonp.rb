@@ -9,6 +9,7 @@ module Rack
 
     VALID_JS_VAR    = /[a-zA-Z_$][\w$]*/
     VALID_CALLBACK  = /\A#{VALID_JS_VAR}(?:\.?#{VALID_JS_VAR})*\z/
+    VALID_JSON_CONTENT_TYPE = /^application\/(?:\S+\+)?json(;\s?\S+=\S+)?$/i
 
     # These hold the Unicode characters \u2028 and \u2029.
     #
@@ -45,8 +46,8 @@ module Rack
 
         response = pad(callback, response)
 
-        # No longer json, its javascript!
-        headers['Content-Type'] = headers['Content-Type'].gsub('json', 'javascript')
+        # No longer json, its now javascript - but keep the optional trailing ;key=value capture #1
+        headers['Content-Type'] = "application/javascript#{$1}"
         
         # Set new Content-Length, if it was set before we mutated the response body
         if headers['Content-Length']
@@ -60,8 +61,10 @@ module Rack
     
     private
     
+        
     def is_json?(headers)
-      headers.key?('Content-Type') && headers['Content-Type'].include?('application/json')
+      headers.key?('Content-Type') && headers['Content-Type'] =~ VALID_JSON_CONTENT_TYPE
+
     end
     
     def has_callback?(request)
