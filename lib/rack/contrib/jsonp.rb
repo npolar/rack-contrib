@@ -96,7 +96,7 @@ module Rack
         # replacing them with the escaped version. This should be safe because
         # according to the JSON spec, these characters are *only* valid inside
         # a string and should therefore not be present any other places.
-        body << s.to_s.gsub(U2028, '\u2028').gsub(U2029, '\u2029')
+        body << s.to_s.force_encoding("utf-8").gsub(U2028, '\u2028').gsub(U2029, '\u2029')
       end
       
       # https://github.com/rack/rack-contrib/issues/46
